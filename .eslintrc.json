@@ -25,6 +25,14 @@
     "ecmaVersion": 6,
     "sourceType": "module"
   },
+  "globals": {
+    "standardScheme": "readonly",
+    "BUILDFLAG": "readonly",
+    "ENABLE_DESKTOP_CAPTURER": "readonly",
+    "ENABLE_ELECTRON_EXTENSIONS": "readonly",
+    "ENABLE_REMOTE_MODULE": "readonly",
+    "ENABLE_VIEW_API": "readonly"
+  },
   "overrides": [
     {
       "files": "*.js",
