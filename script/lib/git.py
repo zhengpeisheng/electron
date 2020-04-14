@@ -260,7 +260,7 @@ def remove_patch_filename(patch):
     force_keep_next_line = l.startswith('Subject: ')
 
 
-def export_patches(repo, out_dir, patch_range=None):
+def export_patches(repo, out_dir, patch_range=None, dry_run=False):
   if patch_range is None:
     patch_range, num_patches = guess_base_commit(repo)
     sys.stderr.write("Exporting {} patches since {}\n".format(num_patches, patch_range))
@@ -272,15 +272,27 @@ def export_patches(repo, out_dir, patch_range=None):
   except OSError:
     pass
 
-  # remove old patches, so that deleted commits are correctly reflected in the
-  # patch files (as a removed file)
-  for p in os.listdir(out_dir):
-    if p.endswith('.patch'):
-      os.remove(os.path.join(out_dir, p))
-
-  with open(os.path.join(out_dir, '.patches'), 'w') as pl:
+  if dry_run:
     for patch in patches:
       filename = get_file_name(patch)
-      with open(os.path.join(out_dir, filename), 'w') as f:
-        f.write('\n'.join(remove_patch_filename(patch)).rstrip('\n') + '\n')
-      pl.write(filename + '\n')
+      filepath = os.path.join(out_dir, filename)
+      existing_patch = open(filepath, 'r').read()
+      formatted_patch = '\n'.join(remove_patch_filename(patch)).rstrip('\n') + '\n'
+      if formatted_patch != existing_patch:
+        sys.stderr.write("{} is not up to date\n".format(filename))
+        exit(1)
+  else:
+    # remove old patches, so that deleted commits are correctly reflected in the
+    # patch files (as a removed file)
+    for p in os.listdir(out_dir):
+      if p.endswith('.patch'):
+        os.remove(os.path.join(out_dir, p))
+    with open(os.path.join(out_dir, '.patches'), 'w') as pl:
+      for patch in patches:
+        filename = get_file_name(patch)
+        file_path = os.path.join(out_dir, filename)
+        formatted_patch = '\n'.join(remove_patch_filename(patch)).rstrip('\n') + '\n'
+        with open(file_path, 'w') as f:
+          f.write(formatted_patch)
+        pl.write(filename + '\n')
+
