@@ -273,6 +273,8 @@ def export_patches(repo, out_dir, patch_range=None, dry_run=False):
     pass
 
   if dry_run:
+    # If we're doing a dry run, iterate through each patch and see if the newly
+    # exported patch differs from what exists. Fail on the first mismatch.
     for patch in patches:
       filename = get_file_name(patch)
       filepath = os.path.join(out_dir, filename)
@@ -282,7 +284,7 @@ def export_patches(repo, out_dir, patch_range=None, dry_run=False):
         sys.stderr.write("{} is not up to date\n".format(filename))
         exit(1)
   else:
-    # remove old patches, so that deleted commits are correctly reflected in the
+    # Remove old patches so that deleted commits are correctly reflected in the
     # patch files (as a removed file)
     for p in os.listdir(out_dir):
       if p.endswith('.patch'):
