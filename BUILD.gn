@@ -457,9 +457,12 @@ source_set("electron_lib") {
     deps += [
       "//components/remote_cocoa/app_shim",
       "//content/common:mac_helpers",
-      "//third_party/crashpad/crashpad/client",
       "//ui/accelerated_widget_mac",
     ]
+
+    if (!is_mas_build) {
+      deps += [ "//third_party/crashpad/crashpad/client" ]
+    }
 
     libs = [
       "AVFoundation.framework",
@@ -995,12 +998,15 @@ if (is_mac) {
 
     group("electron_symbols") {
       deps = [
-        ":crashpad_handler_syms",
         ":electron_app_syms",
         ":electron_framework_syms",
         ":swiftshader_egl_syms",
         ":swiftshader_gles_syms",
       ]
+
+      if (!is_mas_build) {
+        deps += [ ":crashpad_handler_syms" ]
+      }
 
       foreach(helper_params, content_mac_helpers) {
         _helper_target = helper_params[0]
